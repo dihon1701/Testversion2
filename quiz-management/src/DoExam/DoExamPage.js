@@ -562,7 +562,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./DoExamPage.css";
-import { API_URL } from "./config/api";
+import { API_URL } from "../config/api";
 
 const DoExamPage = ({
   examId,

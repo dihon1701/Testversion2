@@ -132,7 +132,7 @@
 import React, { useState } from "react";
 import "./LoginPage.css";
 import { FaUserCircle } from "react-icons/fa";
-import { API_URL } from "./config/api";
+import { API_URL } from "../config/api";
 
 function LoginPage(props) {
   const [username, setUsername] = useState("");

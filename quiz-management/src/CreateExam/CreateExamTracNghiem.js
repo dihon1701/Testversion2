@@ -797,7 +797,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./CreateExamTracNghiem.css"; // Dùng chung file CSS
-import { API_URL } from "./config/api";
+import { API_URL } from "../config/api";
 
 // Component cho một câu hỏi trắc nghiệm đơn lẻ
 const QuestionCard = ({ question, index, onUpdate, onDelete }) => {

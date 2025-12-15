@@ -509,7 +509,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./ExamBank.css";
 import { LuClock3, LuUsers, LuMessageSquare, LuTrash2, LuPencil, LuPlus, LuCheck, LuX } from "react-icons/lu";
-import { API_URL } from "./config/api";
+import { API_URL } from "../config/api";
 
 const ExamBankTracNghiem = ({
   user,              // ⭐ THÊM: nhận user từ App.js

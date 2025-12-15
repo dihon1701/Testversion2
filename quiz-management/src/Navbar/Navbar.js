@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Navbar.css';
-import { API_URL } from "./config/api";
+import { API_URL } from "../config/api";
 
 // SVG Icons tự tạo
 const ChevronDownIcon = () => (
