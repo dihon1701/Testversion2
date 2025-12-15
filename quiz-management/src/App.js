@@ -185,7 +185,7 @@ import ExamBankTracNghiem from "./ExamBank/ExamBankTracNghiem";
 import ExamBankTuLuan from "./ExamBank/ExamBankTuLuan";
 import CreateExamTracNghiem from "./CreateExam/CreateExamTracNghiem";
 import DoExamPage from "./DoExam/DoExamPage";
-import { API_URL } from "../config/api";
+import { API_URL } from "./config/api";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("login");
@@ -229,7 +229,7 @@ function App() {
   // ================================
   const verifyToken = async (authToken) => {
     try {
-      const response = await fetch('${API_URL}/api/auth/verify', {
+      const response = await fetch(`${API_URL}/api/auth/verify`, {
         headers: {
           'Authorization': `Bearer ${authToken}`
         }

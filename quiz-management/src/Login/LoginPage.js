@@ -134,6 +134,8 @@ import "./LoginPage.css";
 import { FaUserCircle } from "react-icons/fa";
 import { API_URL } from "../config/api";
 
+
+
 function LoginPage(props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -151,8 +153,7 @@ function LoginPage(props) {
     setIsLoading(true);
 
     try {
-      // Gọi API backend login
-      const res = await fetch("${API_URL}/api/auth/login", {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -188,7 +189,7 @@ function LoginPage(props) {
       // Lưu vào localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("userData", JSON.stringify(data.user));
-      
+
       // Giữ lại format cũ để tương thích
       localStorage.setItem("role", data.user.role);
       localStorage.setItem("fullname", data.user.name);

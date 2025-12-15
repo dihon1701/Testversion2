@@ -185,7 +185,7 @@ const Navbar = ({
             });
             console.log('📤 Request body:', requestBody);
 
-            const response = await fetch('${API_URL}/api/auth/profile', {
+            const response = await fetch(`${API_URL}/api/auth/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
