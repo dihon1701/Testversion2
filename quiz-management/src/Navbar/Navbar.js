@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Navbar.css';
+import { API_URL } from "./config/api";
 
 // SVG Icons tự tạo
 const ChevronDownIcon = () => (
@@ -177,14 +178,14 @@ const Navbar = ({
                 department: editedUser.department
             };
 
-            console.log('📤 Sending PUT request to: http://localhost:5000/api/auth/profile');
+            console.log('📤 Sending PUT request to: ${API_URL}/api/auth/profile');
             console.log('📤 Request headers:', {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token.substring(0, 20)}...`
             });
             console.log('📤 Request body:', requestBody);
 
-            const response = await fetch('http://localhost:5000/api/auth/profile', {
+            const response = await fetch('${API_URL}/api/auth/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

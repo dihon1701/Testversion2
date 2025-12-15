@@ -61,7 +61,7 @@
 //     try {
 //       const deviceInfo = getDeviceInfo();
 
-//       const response = await fetch("http://localhost:5000/api/exam-session/start", {
+//       const response = await fetch("${API_URL}/api/exam-session/start", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify({
@@ -107,7 +107,7 @@
 //   const startHeartbeat = (sid) => {
 //     heartbeatInterval.current = setInterval(async () => {
 //       try {
-//         const response = await fetch("http://localhost:5000/api/exam-session/heartbeat", {
+//         const response = await fetch("${API_URL}/api/exam-session/heartbeat", {
 //           method: "POST",
 //           headers: { "Content-Type": "application/json" },
 //           body: JSON.stringify({ sessionId: sid })
@@ -138,7 +138,7 @@
 //     if (!sessionId || submitted) return;
 
 //     try {
-//       const response = await fetch("http://localhost:5000/api/exam-session/violation", {
+//       const response = await fetch("${API_URL}/api/exam-session/violation", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify({
@@ -168,7 +168,7 @@
 //     const fetchExam = async () => {
 //       try {
 //         setLoading(true);
-//         const res = await fetch(`http://localhost:5000/api/exams/${examId}`);
+//         const res = await fetch(`${API_URL}/api/exams/${examId}`);
 
 //         if (!res.ok) throw new Error("Không tìm thấy đề thi");
 
@@ -382,7 +382,7 @@
 //     }
 
 //     try {
-//       const response = await fetch("http://localhost:5000/api/exam-session/submit", {
+//       const response = await fetch("${API_URL}/api/exam-session/submit", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify({
@@ -562,6 +562,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./DoExamPage.css";
+import { API_URL } from "./config/api";
 
 const DoExamPage = ({
   examId,
@@ -604,7 +605,7 @@ const DoExamPage = ({
   // ⭐ LẤY USER ID TỪ PROP
   const userId = user?.id || 3;
 
-  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const apiUrl = process.env.REACT_APP_API_URL || '${API_URL}';
 
   // ========================
   // 🔐 Lấy thông tin thiết bị

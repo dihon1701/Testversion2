@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./RegisterPage.css";
 import { FaUserCircle } from "react-icons/fa";
+import { API_URL } from "./config/api";
 
 function RegisterPage(props) {
   const [fullname, setFullname] = useState("");
@@ -36,7 +37,7 @@ function RegisterPage(props) {
 
     try {
       // 🔹 Gọi API backend
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch("${API_URL}/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

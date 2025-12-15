@@ -23,7 +23,7 @@
 //   const fetchExams = async () => {
 //     setLoading(true);
 //     try {
-//       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+//       const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 //       const res = await fetch(`${apiUrl}/api/exams`);
 //       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
 //       const result = await res.json();
@@ -63,7 +63,7 @@
 //     if (!window.confirm("⚠️ Bạn có chắc muốn xóa đề thi này?")) return;
 
 //     try {
-//       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+//       const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 //       const res = await fetch(`${apiUrl}/api/exams/${examId}`, {
 //         method: "DELETE",
 //         headers: {
@@ -188,7 +188,7 @@
 //   const fetchExams = async () => {
 //     setLoading(true);
 //     try {
-//       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+//       const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 //       const res = await fetch(`${apiUrl}/api/exams`);
 //       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
 //       const result = await res.json();
@@ -228,7 +228,7 @@
 //     if (!window.confirm("⚠️ Bạn có chắc muốn xóa đề thi này? Hành động này không thể hoàn tác!")) return;
 
 //     try {
-//       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+//       const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 //       const res = await fetch(`${apiUrl}/api/exams/${examId}`, {
 //         method: "DELETE",
 //         headers: {
@@ -254,7 +254,7 @@
 //   // =========================
 //   const handleEdit = async (exam) => {
 //     try {
-//       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+//       const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 //       const res = await fetch(`${apiUrl}/api/exams/${exam.id}/full`);
       
 //       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -319,7 +319,7 @@
 //     }
 
 //     try {
-//       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+//       const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 //       const res = await fetch(`${apiUrl}/api/exams/${editingExam.id}`, {
 //         method: "PUT",
 //         headers: {
@@ -509,6 +509,7 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./ExamBank.css";
 import { LuClock3, LuUsers, LuMessageSquare, LuTrash2, LuPencil, LuPlus, LuCheck, LuX } from "react-icons/lu";
+import { API_URL } from "./config/api";
 
 const ExamBankTracNghiem = ({
   user,              // ⭐ THÊM: nhận user từ App.js
@@ -543,7 +544,7 @@ const ExamBankTracNghiem = ({
   const [editingQuestionId, setEditingQuestionId] = useState(null);
 
   // API URL
-  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 
   // =========================
   // Fetch danh sách đề thi

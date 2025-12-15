@@ -17,7 +17,7 @@
 
 //     try {
 //       // Gọi API backend login
-//       const res = await fetch("http://localhost:5000/api/auth/login", {
+//       const res = await fetch("${API_URL}/api/auth/login", {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify({ username, password }),
@@ -132,6 +132,7 @@
 import React, { useState } from "react";
 import "./LoginPage.css";
 import { FaUserCircle } from "react-icons/fa";
+import { API_URL } from "./config/api";
 
 function LoginPage(props) {
   const [username, setUsername] = useState("");
@@ -151,7 +152,7 @@ function LoginPage(props) {
 
     try {
       // Gọi API backend login
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("${API_URL}/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

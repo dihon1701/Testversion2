@@ -162,7 +162,7 @@
 //     };
 
 //     try {
-//       const res = await fetch("http://localhost:5000/api/exams", {
+//       const res = await fetch("${API_URL}/api/exams", {
 //         method: "POST",
 //         headers: {
 //           "Content-Type": "application/json",
@@ -627,7 +627,7 @@
 //     console.log("📤 Sending payload:", payload);
 
 //     try {
-//       const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+//       const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 //       console.log("🌐 API URL:", apiUrl);
 
 //       const res = await fetch(`${apiUrl}/api/exams`, {
@@ -663,7 +663,7 @@
 //           "❌ Không thể kết nối Backend!\n\n" +
 //           "Kiểm tra:\n" +
 //           "• Backend có chạy? (cd backend && node server.js)\n" +
-//           "• URL: http://localhost:5000\n" +
+//           "• URL: ${API_URL}\n" +
 //           "• CORS đã bật?"
 //         );
 //       } else {
@@ -797,6 +797,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./CreateExamTracNghiem.css"; // Dùng chung file CSS
+import { API_URL } from "./config/api";
 
 // Component cho một câu hỏi trắc nghiệm đơn lẻ
 const QuestionCard = ({ question, index, onUpdate, onDelete }) => {
@@ -946,7 +947,7 @@ const CreateExamTracNghiem = ({ onNavigateHome, ...props }) => {
     };
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+      const apiUrl = process.env.REACT_APP_API_URL || "${API_URL}";
 
       const res = await fetch(`${apiUrl}/api/exams`, {
         method: "POST",
@@ -979,7 +980,7 @@ const CreateExamTracNghiem = ({ onNavigateHome, ...props }) => {
           "❌ Không thể kết nối Backend!\n\n" +
             "Kiểm tra:\n" +
             "• Backend có chạy? (cd backend && node server.js)\n" +
-            "• URL: http://localhost:5000\n" +
+            "• URL: ${API_URL}\n" +
             "• CORS đã bật?"
         );
       } else {
