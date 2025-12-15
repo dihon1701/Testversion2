@@ -755,6 +755,14 @@ app.post("/api/answers", verifyToken, verifyRole("teacher", "admin"), (req, res)
     });
 });
 
+app.get("/", (req, res) => {
+    res.json({ 
+        message: "Backend API is running!",
+        status: "ok",
+        timestamp: new Date().toISOString()
+    });
+});
+
 // ========================
 // ❌ 404 Handler
 // ========================
