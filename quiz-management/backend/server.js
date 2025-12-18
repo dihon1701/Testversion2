@@ -868,8 +868,8 @@ app.use(cors({
 // 🚫 RATE LIMITING (Chống spam)
 // ========================
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 phút
-    max: 100, // 100 requests per IP
+    windowMs: 1 * 60 * 1000, // 15 phút
+    max: 9000000, // 100 requests per IP
     message: { 
         success: false,
         message: "Quá nhiều request từ IP này, vui lòng thử lại sau 15 phút" 

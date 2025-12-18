@@ -1,617 +1,11 @@
-// // import React, { useEffect, useState, useRef } from "react";
-// // import Navbar from "../Navbar/Navbar";
-// // import "./DoExamPage.css";
-// // import { API_URL } from "../config/api";
-
-// // const DoExamPage = ({
-// //   examId,
-// //   user,              // ⭐ THÊM
-// //   onUpdateUser,      // ⭐ THÊM
-// //   onLogout,          // ⭐ THÊM
-// //   onNavigateHome,
-// //   onShowTeachers,
-// //   onShowStudents,
-// //   onShowExamBank,
-// //   onShowCreateExam,
-// // }) => {
-// //   const [examInfo, setExamInfo] = useState(null);
-// //   const [questions, setQuestions] = useState([]);
-// //   const [answers, setAnswers] = useState({});
-// //   const [submitted, setSubmitted] = useState(false);
-// //   const [result, setResult] = useState(null);
-// //   const [loading, setLoading] = useState(true);
-// //   const [timeLeft, setTimeLeft] = useState(0);
-
-// //   // 🔒 Anti-cheat states
-// //   const [sessionId, setSessionId] = useState(null);
-// //   const [violations, setViolations] = useState({
-// //     tabSwitch: 0,
-// //     copyAttempt: 0,
-// //     exitFullscreen: 0,
-// //     total: 0
-// //   });
-// //   const [settings, setSettings] = useState({
-// //     requireFullscreen: true,
-// //     maxViolations: 3,
-// //     blockCopy: true,
-// //     blockRightClick: true
-// //   });
-// //   const [kicked, setKicked] = useState(false);
-
-// //   const fullscreenRef = useRef(null);
-// //   const heartbeatInterval = useRef(null);
-
-// //   // ⭐ LẤY USER ID TỪ PROP
-// //   const userId = user?.id || 3;
-
-// //   const apiUrl = process.env.REACT_APP_API_URL || '${API_URL}';
-
-// //   // ========================
-// //   // 🔐 Lấy thông tin thiết bị
-// //   // ========================
-// //   const getDeviceInfo = () => {
-// //     return {
-// //       userAgent: navigator.userAgent,
-// //       platform: navigator.platform,
-// //       language: navigator.language,
-// //       screenResolution: `${window.screen.width}x${window.screen.height}`,
-// //       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-// //       timestamp: new Date().toISOString()
-// //     };
-// //   };
-
-// //   // ========================
-// //   // 🚀 Bắt đầu session
-// //   // ========================
-// //   const startSession = async () => {
-// //     try {
-// //       const deviceInfo = getDeviceInfo();
-
-// //       const response = await fetch(`${apiUrl}/api/exam-session/start`, {
-// //         method: "POST",
-// //         headers: { "Content-Type": "application/json" },
-// //         body: JSON.stringify({
-// //           userId,
-// //           examId,
-// //           deviceInfo,
-// //           settings: {
-// //             requireFullscreen: settings.requireFullscreen,
-// //             maxViolations: settings.maxViolations
-// //           }
-// //         })
-// //       });
-
-// //       const data = await response.json();
-
-// //       if (data.success) {
-// //         setSessionId(data.sessionId);
-// //         console.log("✅ Session started:", data.sessionId);
-
-// //         if (data.kicked) {
-// //           alert("⚠️ Phiên thi cũ của bạn đã bị đóng!");
-// //         }
-
-// //         // Bắt đầu heartbeat
-// //         startHeartbeat(data.sessionId);
-
-// //         // Fullscreen nếu cần
-// //         if (settings.requireFullscreen) {
-// //           enterFullscreen();
-// //         }
-// //       } else {
-// //         alert("❌ Không thể bắt đầu thi: " + data.message);
-// //       }
-// //     } catch (error) {
-// //       console.error("❌ Start session error:", error);
-// //       alert("Lỗi kết nối server!");
-// //     }
-// //   };
-
-// //   // ========================
-// //   // 💓 Heartbeat - Kiểm tra session
-// //   // ========================
-// //   const startHeartbeat = (sid) => {
-// //     heartbeatInterval.current = setInterval(async () => {
-// //       try {
-// //         const response = await fetch(`${apiUrl}/api/exam-session/heartbeat`, {
-// //           method: "POST",
-// //           headers: { "Content-Type": "application/json" },
-// //           body: JSON.stringify({ sessionId: sid })
-// //         });
-
-// //         const data = await response.json();
-
-// //         if (!data.valid) {
-// //           console.log("❌ Session không valid:", data);
-// //           setKicked(true);
-// //           clearInterval(heartbeatInterval.current);
-          
-// //           if (data.kicked) {
-// //             alert("⚠️ Bạn đã đăng nhập từ thiết bị khác! Bài thi sẽ bị nộp.");
-// //             handleSubmit(true);
-// //           }
-// //         }
-// //       } catch (error) {
-// //         console.error("❌ Heartbeat error:", error);
-// //       }
-// //     }, 5000); // Mỗi 5 giây
-// //   };
-
-// //   // ========================
-// //   // 🚨 Ghi log vi phạm
-// //   // ========================
-// //   const logViolation = async (type, detail) => {
-// //     if (!sessionId || submitted) return;
-
-// //     try {
-// //       const response = await fetch(`${apiUrl}/api/exam-session/violation`, {
-// //         method: "POST",
-// //         headers: { "Content-Type": "application/json" },
-// //         body: JSON.stringify({
-// //           sessionId,
-// //           userId,
-// //           examId,
-// //           violationType: type,
-// //           detail
-// //         })
-// //       });
-
-// //       const data = await response.json();
-
-// //       if (data.forceEnd) {
-// //         alert("🚫 Bạn đã vi phạm quá nhiều! Bài thi sẽ tự động nộp.");
-// //         handleSubmit(true);
-// //       }
-// //     } catch (error) {
-// //       console.error("❌ Log violation error:", error);
-// //     }
-// //   };
-
-// //   // ========================
-// //   // 📋 Fetch đề thi
-// //   // ========================
-// //   useEffect(() => {
-// //     const fetchExam = async () => {
-// //       try {
-// //         setLoading(true);
-// //         console.log('🔍 Fetching exam ID:', examId);
-
-// //         // ⭐ THÊM TOKEN
-// //         const token = localStorage.getItem('token');
-        
-// //         if (!token) {
-// //           console.error('❌ No token found!');
-// //           alert('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại!');
-// //           if (onLogout) onLogout();
-// //           return;
-// //         }
-
-// //         const res = await fetch(`${apiUrl}/api/exams/${examId}`, {
-// //           headers: {
-// //             'Authorization': `Bearer ${token}`,  // ⭐ THÊM TOKEN
-// //             'Content-Type': 'application/json'
-// //           }
-// //         });
-
-// //         console.log('📡 Response status:', res.status);
-
-// //         if (res.status === 401) {
-// //           alert('Phiên đăng nhập hết hạn!');
-// //           if (onLogout) onLogout();
-// //           return;
-// //         }
-
-// //         if (!res.ok) {
-// //           throw new Error(`HTTP ${res.status}: Không tìm thấy đề thi`);
-// //         }
-
-// //         const data = await res.json();
-// //         console.log('📥 Exam data:', data);
-
-// //         setExamInfo(data.exam || {});
-
-// //         const qWithAns = (data.questions || []).map((q) => ({
-// //           ...q,
-// //           answers: data.answers
-// //             ? data.answers.filter((a) => a.question_id === q.id)
-// //             : [],
-// //         }));
-
-// //         console.log('✅ Questions loaded:', qWithAns.length);
-// //         setQuestions(qWithAns);
-// //         setTimeLeft((data.exam.duration || 0) * 60);
-
-// //         // Bắt đầu session sau khi load xong
-// //         await startSession();
-// //       } catch (err) {
-// //         console.error("❌ Fetch exam error:", err);
-// //         alert("Lỗi: " + err.message);
-// //         setExamInfo(null);
-// //         setQuestions([]);
-// //       } finally {
-// //         setLoading(false);
-// //       }
-// //     };
-
-// //     if (examId) {
-// //       fetchExam();
-// //     }
-
-// //     return () => {
-// //       // Cleanup heartbeat khi unmount
-// //       if (heartbeatInterval.current) {
-// //         clearInterval(heartbeatInterval.current);
-// //       }
-// //     };
-// //   }, [examId]);
-
-// //   // ========================
-// //   // ⏱️ Đếm ngược thời gian
-// //   // ========================
-// //   useEffect(() => {
-// //     if (submitted || timeLeft <= 0) return;
-
-// //     const timer = setInterval(() => {
-// //       setTimeLeft((prev) => {
-// //         if (prev <= 1) {
-// //           clearInterval(timer);
-// //           handleSubmit(true); // Hết giờ = force submit
-// //           return 0;
-// //         }
-// //         return prev - 1;
-// //       });
-// //     }, 1000);
-
-// //     return () => clearInterval(timer);
-// //   }, [timeLeft, submitted]);
-
-// //   // ========================
-// //   // 🔍 Phát hiện chuyển tab
-// //   // ========================
-// //   useEffect(() => {
-// //     if (!sessionId || submitted) return;
-
-// //     const handleVisibilityChange = () => {
-// //       if (document.hidden) {
-// //         setViolations(prev => ({
-// //           ...prev,
-// //           tabSwitch: prev.tabSwitch + 1,
-// //           total: prev.total + 1
-// //         }));
-// //         logViolation("TAB_SWITCH", "Chuyển sang tab/cửa sổ khác");
-// //       }
-// //     };
-
-// //     const handleBlur = () => {
-// //       if (!document.hidden) {
-// //         logViolation("WINDOW_BLUR", "Mất focus khỏi cửa sổ thi");
-// //       }
-// //     };
-
-// //     document.addEventListener("visibilitychange", handleVisibilityChange);
-// //     window.addEventListener("blur", handleBlur);
-
-// //     return () => {
-// //       document.removeEventListener("visibilitychange", handleVisibilityChange);
-// //       window.removeEventListener("blur", handleBlur);
-// //     };
-// //   }, [sessionId, submitted]);
-
-// //   // ========================
-// //   // 🖥️ Phát hiện thoát fullscreen
-// //   // ========================
-// //   useEffect(() => {
-// //     if (!sessionId || submitted || !settings.requireFullscreen) return;
-
-// //     const handleFullscreenChange = () => {
-// //       if (!document.fullscreenElement) {
-// //         setViolations(prev => ({
-// //           ...prev,
-// //           exitFullscreen: prev.exitFullscreen + 1,
-// //           total: prev.total + 1
-// //         }));
-// //         logViolation("EXIT_FULLSCREEN", "Thoát chế độ toàn màn hình");
-
-// //         // Yêu cầu vào lại
-// //         setTimeout(() => {
-// //           if (!submitted) {
-// //             enterFullscreen();
-// //           }
-// //         }, 1000);
-// //       }
-// //     };
-
-// //     document.addEventListener("fullscreenchange", handleFullscreenChange);
-
-// //     return () => {
-// //       document.removeEventListener("fullscreenchange", handleFullscreenChange);
-// //     };
-// //   }, [sessionId, submitted, settings.requireFullscreen]);
-
-// //   // ========================
-// //   // 🚫 Chặn copy, right-click, shortcuts
-// //   // ========================
-// //   useEffect(() => {
-// //     if (!sessionId || submitted) return;
-
-// //     const handleCopy = (e) => {
-// //       if (settings.blockCopy) {
-// //         e.preventDefault();
-// //         setViolations(prev => ({
-// //           ...prev,
-// //           copyAttempt: prev.copyAttempt + 1,
-// //           total: prev.total + 1
-// //         }));
-// //         logViolation("COPY_ATTEMPT", "Cố gắng copy nội dung");
-// //       }
-// //     };
-
-// //     const handleContextMenu = (e) => {
-// //       if (settings.blockRightClick) {
-// //         e.preventDefault();
-// //       }
-// //     };
-
-// //     const handleSelectStart = (e) => {
-// //       if (settings.blockCopy) {
-// //         e.preventDefault();
-// //       }
-// //     };
-
-// //     const handleKeyDown = (e) => {
-// //       // Chặn Ctrl+C, Ctrl+A, F12, Ctrl+Shift+I
-// //       if (
-// //         (e.ctrlKey && (e.key === "c" || e.key === "a")) ||
-// //         e.key === "F12" ||
-// //         (e.ctrlKey && e.shiftKey && e.key === "I")
-// //       ) {
-// //         e.preventDefault();
-// //         logViolation("KEYBOARD_SHORTCUT", `Phím tắt: ${e.key}`);
-// //       }
-// //     };
-
-// //     document.addEventListener("copy", handleCopy);
-// //     document.addEventListener("contextmenu", handleContextMenu);
-// //     document.addEventListener("selectstart", handleSelectStart);
-// //     document.addEventListener("keydown", handleKeyDown);
-
-// //     return () => {
-// //       document.removeEventListener("copy", handleCopy);
-// //       document.removeEventListener("contextmenu", handleContextMenu);
-// //       document.removeEventListener("selectstart", handleSelectStart);
-// //       document.removeEventListener("keydown", handleKeyDown);
-// //     };
-// //   }, [sessionId, submitted, settings]);
-
-// //   // ========================
-// //   // 🖼️ Fullscreen
-// //   // ========================
-// //   const enterFullscreen = () => {
-// //     if (fullscreenRef.current && fullscreenRef.current.requestFullscreen) {
-// //       fullscreenRef.current.requestFullscreen().catch(err => {
-// //         console.error("❌ Fullscreen error:", err);
-// //       });
-// //     }
-// //   };
-
-// //   // ========================
-// //   // ✅ Chọn đáp án
-// //   // ========================
-// //   const handleSelect = (qid, value) => {
-// //     if (submitted) return;
-// //     setAnswers((prev) => ({ ...prev, [qid]: value }));
-// //   };
-
-// //   // ========================
-// //   // 📤 Nộp bài
-// //   // ========================
-// //   const handleSubmit = async (isForced = false) => {
-// //     if (submitted) return;
-
-// //     setSubmitted(true);
-
-// //     // Stop heartbeat
-// //     if (heartbeatInterval.current) {
-// //       clearInterval(heartbeatInterval.current);
-// //     }
-
-// //     // Thoát fullscreen
-// //     if (document.fullscreenElement) {
-// //       document.exitFullscreen();
-// //     }
-
-// //     try {
-// //       const response = await fetch(`${apiUrl}/api/exam-session/submit`, {
-// //         method: "POST",
-// //         headers: { "Content-Type": "application/json" },
-// //         body: JSON.stringify({
-// //           sessionId,
-// //           userId,
-// //           examId,
-// //           answers,
-// //           isForced
-// //         })
-// //       });
-
-// //       const data = await response.json();
-
-// //       if (data.success) {
-// //         setResult(data.result);
-// //         console.log("✅ Nộp bài thành công:", data.result);
-// //       } else {
-// //         alert("❌ Lỗi nộp bài: " + data.message);
-// //       }
-// //     } catch (error) {
-// //       console.error("❌ Submit error:", error);
-// //       alert("Lỗi kết nối server khi nộp bài!");
-// //     }
-// //   };
-
-// //   // ========================
-// //   // 🎨 Format time
-// //   // ========================
-// //   const formatTime = (sec) => {
-// //     const m = Math.floor(sec / 60).toString().padStart(2, "0");
-// //     const s = (sec % 60).toString().padStart(2, "0");
-// //     return `${m}:${s}`;
-// //   };
-
-// //   // ========================
-// //   // 🔄 Loading
-// //   // ========================
-// //   if (loading) return <div className="do-exam-page">Đang tải đề thi...</div>;
-// //   if (!examInfo) return <div className="do-exam-page">Không tìm thấy đề thi</div>;
-
-// //   // ========================
-// //   // 🎉 Đã nộp bài
-// //   // ========================
-// //   if (submitted && result) {
-// //     return (
-// //       <div className="do-exam-page">
-// //         <Navbar
-// //           user={user}              // ⭐ THÊM
-// //           onUpdateUser={onUpdateUser}  // ⭐ THÊM
-// //           onLogout={onLogout}      // ⭐ THÊM
-// //           onNavigateHome={onNavigateHome}
-// //           onShowTeachers={onShowTeachers}
-// //           onShowStudents={onShowStudents}
-// //           onShowExamBank={onShowExamBank}
-// //           onShowCreateExam={onShowCreateExam}
-// //         />
-
-// //         <div className="do-exam-container">
-// //           <div className="result-card">
-// //             <h1>🎉 Hoàn thành bài thi!</h1>
-            
-// //             <div className="score-display">
-// //               <h2>Điểm: {result.score} / {result.totalPoints}</h2>
-// //               <p className="percentage">({result.percentage}%)</p>
-// //             </div>
-
-// //             <div className="stats">
-// //               <div className="stat-item">
-// //                 <span className="label">✅ Đúng:</span>
-// //                 <span className="value">{result.correct}</span>
-// //               </div>
-// //               <div className="stat-item">
-// //                 <span className="label">❌ Sai:</span>
-// //                 <span className="value">{result.wrong}</span>
-// //               </div>
-// //               <div className="stat-item">
-// //                 <span className="label">⚠️ Chưa làm:</span>
-// //                 <span className="value">{result.unanswered}</span>
-// //               </div>
-// //               <div className="stat-item">
-// //                 <span className="label">🚨 Vi phạm:</span>
-// //                 <span className="value">{result.totalViolations}</span>
-// //               </div>
-// //             </div>
-
-// //             {result.totalViolations > 0 && (
-// //               <div className="violation-details">
-// //                 <h3>Chi tiết vi phạm:</h3>
-// //                 <ul>
-// //                   {Object.entries(result.violations).map(([type, count]) => (
-// //                     <li key={type}>{type}: {count} lần</li>
-// //                   ))}
-// //                 </ul>
-// //               </div>
-// //             )}
-
-// //             <button className="btn-home" onClick={onNavigateHome}>
-// //               Về trang chủ
-// //             </button>
-// //           </div>
-// //         </div>
-// //       </div>
-// //     );
-// //   }
-
-// //   // ========================
-// //   // 📝 Đang thi
-// //   // ========================
-// //   return (
-// //     <div ref={fullscreenRef} className="do-exam-page">
-// //       <Navbar
-// //         user={user}              // ⭐ THÊM
-// //         onUpdateUser={onUpdateUser}  // ⭐ THÊM
-// //         onLogout={onLogout}      // ⭐ THÊM
-// //         onNavigateHome={onNavigateHome}
-// //         onShowTeachers={onShowTeachers}
-// //         onShowStudents={onShowStudents}
-// //         onShowExamBank={onShowExamBank}
-// //         onShowCreateExam={onShowCreateExam}
-// //       />
-
-// //       {/* ⏱️ Đồng hồ */}
-// //       <div className="timer-floating">
-// //         ⏳ {formatTime(timeLeft)}
-// //         {violations.total > 0 && (
-// //           <div className="violation-badge">
-// //             🚨 {violations.total}/{settings.maxViolations}
-// //           </div>
-// //         )}
-// //       </div>
-
-// //       <div className="do-exam-container">
-// //         <h1 className="exam-title">{examInfo.title}</h1>
-
-// //         {/* ⚠️ Cảnh báo vi phạm */}
-// //         {violations.total > 0 && violations.total < settings.maxViolations && (
-// //           <div className="warning-banner">
-// //             ⚠️ Cảnh báo: Bạn đã vi phạm {violations.total} lần. 
-// //             Còn {settings.maxViolations - violations.total} lần trước khi tự động nộp bài!
-// //           </div>
-// //         )}
-
-// //         <div className="question-list">
-// //           {questions.map((q, index) => (
-// //             <div className="question-card" key={q.id}>
-// //               <p className="question-text">
-// //                 <strong>Câu {index + 1}:</strong> {q.question_text} ({q.points} điểm)
-// //               </p>
-
-// //               <div className="choices">
-// //                 {q.answers.length > 0 ? (
-// //                   q.answers.map((a) => (
-// //                     <label className="choice-item" key={a.id}>
-// //                       <input
-// //                         type="radio"
-// //                         name={`q-${q.id}`}
-// //                         value={a.id}
-// //                         checked={answers[q.id] === a.id}
-// //                         onChange={() => handleSelect(q.id, a.id)}
-// //                         disabled={submitted}
-// //                       />
-// //                       <span>{a.answer_text}</span>
-// //                     </label>
-// //                   ))
-// //                 ) : (
-// //                   <p>❌ Chưa có đáp án</p>
-// //                 )}
-// //               </div>
-// //             </div>
-// //           ))}
-// //         </div>
-
-// //         <button className="submit-btn" onClick={() => handleSubmit(false)} disabled={submitted}>
-// //           Nộp bài
-// //         </button>
-// //       </div>
-// //     </div>
-// //   );
-// // };
-
-// // export default DoExamPage;
-
+// //Sửa lần 2
 // import React, { useEffect, useState, useRef, useCallback } from "react";
 // import Navbar from "../Navbar/Navbar";
 // import "./DoExamPage.css";
+// import useAuth from '../useAuth';
 
 // const DoExamPage = ({
 //   examId,
-//   user,
-//   onUpdateUser,
 //   onLogout,
 //   onNavigateHome,
 //   onShowTeachers,
@@ -619,6 +13,10 @@
 //   onShowExamBank,
 //   onShowCreateExam,
 // }) => {
+//   // ✅ Lấy user từ AuthContext thay vì props
+//   const { currentUser } = useAuth();
+//   const userId = currentUser?.id;
+
 //   // ========================
 //   // STATES
 //   // ========================
@@ -656,8 +54,6 @@
 //   const HEARTBEAT_INTERVAL = 15000; // 15 seconds
 //   const AUTOSAVE_INTERVAL = 30000; // 30 seconds
 //   const MAX_FULLSCREEN_RETRY = 3;
-  
-//   const userId = user?.id;
 
 //   // ========================
 //   // VALIDATION
@@ -854,7 +250,6 @@
 //         }
 //       } catch (error) {
 //         console.error("❌ Heartbeat error:", error);
-//         // Không show error để không làm phiền user
 //       }
 //     }, HEARTBEAT_INTERVAL);
 //   }, []);
@@ -893,7 +288,6 @@
 //       const data = await response.json();
 
 //       if (data.success) {
-//         // Update violations from server
 //         setViolations({
 //           total: data.violationCount || 0,
 //           max: data.maxViolations || settings.maxViolations
@@ -1045,7 +439,6 @@
 //       if (!document.fullscreenElement && !submitted) {
 //         logViolation("EXIT_FULLSCREEN", "Thoát chế độ toàn màn hình");
 
-//         // Allow limited retries
 //         if (retryCount < MAX_FULLSCREEN_RETRY) {
 //           setTimeout(() => {
 //             showNotification("⚠️ Vui lòng quay lại chế độ toàn màn hình!", "warning");
@@ -1089,7 +482,6 @@
 
 //     const handleSelectStart = (e) => {
 //       if (blockCopy) {
-//         // Allow selection on input/textarea
 //         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
 //           return;
 //         }
@@ -1098,7 +490,6 @@
 //     };
 
 //     const handleKeyDown = (e) => {
-//       // Block Ctrl+C, F12, Ctrl+Shift+I (DevTools)
 //       if (
 //         (e.ctrlKey && e.key === "c") ||
 //         e.key === "F12" ||
@@ -1157,7 +548,6 @@
 //   const handleSubmit = useCallback(async (isForced = false) => {
 //     if (submitted) return;
 
-//     // Confirmation if not forced
 //     if (!isForced) {
 //       const confirmed = window.confirm(
 //         `Bạn có chắc muốn nộp bài?\n\n` +
@@ -1169,17 +559,14 @@
 
 //     setSubmitted(true);
 
-//     // Stop heartbeat
 //     if (heartbeatInterval.current) {
 //       clearInterval(heartbeatInterval.current);
 //     }
 
-//     // Stop autosave
 //     if (autoSaveInterval.current) {
 //       clearInterval(autoSaveInterval.current);
 //     }
 
-//     // Exit fullscreen
 //     if (document.fullscreenElement) {
 //       document.exitFullscreen().catch(err => {
 //         console.error("Exit fullscreen error:", err);
@@ -1205,7 +592,6 @@
 //         setResult(data.result);
 //         console.log("✅ Submitted successfully:", data.result);
         
-//         // Clear saved answers
 //         clearAnswersLocal();
         
 //         showNotification("✅ Nộp bài thành công!", "success");
@@ -1215,7 +601,7 @@
 //     } catch (error) {
 //       console.error("❌ Submit error:", error);
 //       setError("Lỗi kết nối khi nộp bài: " + error.message);
-//       setSubmitted(false); // Allow retry
+//       setSubmitted(false);
 //     }
 //   }, [submitted, answers, questions.length, timeLeft, sessionId, userId, examId, clearAnswersLocal]);
 
@@ -1234,11 +620,8 @@
 //   };
 
 //   const showNotification = (message, type = "info") => {
-//     // Simple toast notification
-//     // You can replace this with a proper toast library like react-toastify
 //     console.log(`[${type.toUpperCase()}] ${message}`);
     
-//     // For now, use alert for critical messages
 //     if (type === "error") {
 //       alert(message);
 //     }
@@ -1292,8 +675,6 @@
 //     return (
 //       <div className="do-exam-page">
 //         <Navbar
-//           user={user}
-//           onUpdateUser={onUpdateUser}
 //           onLogout={onLogout}
 //           onNavigateHome={onNavigateHome}
 //           onShowTeachers={onShowTeachers}
@@ -1357,8 +738,6 @@
 //   return (
 //     <div ref={fullscreenRef} className="do-exam-page">
 //       <Navbar
-//         user={user}
-//         onUpdateUser={onUpdateUser}
 //         onLogout={onLogout}
 //         onNavigateHome={onNavigateHome}
 //         onShowTeachers={onShowTeachers}
@@ -1367,7 +746,6 @@
 //         onShowCreateExam={onShowCreateExam}
 //       />
 
-//       {/* FULLSCREEN PROMPT */}
 //       {fullscreenReady && (
 //         <div className="fullscreen-prompt-overlay">
 //           <div className="fullscreen-prompt">
@@ -1380,7 +758,6 @@
 //         </div>
 //       )}
 
-//       {/* KICKED OVERLAY */}
 //       {kicked && (
 //         <div className="kicked-overlay">
 //           <div className="kicked-modal">
@@ -1391,7 +768,6 @@
 //         </div>
 //       )}
 
-//       {/* TIMER */}
 //       <div className="timer-floating">
 //         ⏳ {formatTime(timeLeft)}
 //         {violations.total > 0 && (
@@ -1404,7 +780,6 @@
 //       <div className="do-exam-container">
 //         <h1 className="exam-title">{examInfo.title}</h1>
 
-//         {/* WARNING BANNER */}
 //         {violations.total > 0 && violations.total < (violations.max || settings.maxViolations) && (
 //           <div className="warning-banner">
 //             ⚠️ Cảnh báo: Bạn đã vi phạm {violations.total} lần. 
@@ -1412,7 +787,6 @@
 //           </div>
 //         )}
 
-//         {/* QUESTIONS */}
 //         <div className="question-list">
 //           {questions.map((q, index) => (
 //             <div className="question-card" key={q.id}>
@@ -1443,7 +817,6 @@
 //           ))}
 //         </div>
 
-//         {/* SUBMIT BUTTON */}
 //         <div className="submit-section">
 //           <p className="answer-count">
 //             Đã làm: {Object.keys(answers).length}/{questions.length} câu
@@ -1463,7 +836,7 @@
 
 // export default DoExamPage;
 
-//Sửa lần 2
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import Navbar from "../Navbar/Navbar";
 import "./DoExamPage.css";
@@ -1478,7 +851,7 @@ const DoExamPage = ({
   onShowExamBank,
   onShowCreateExam,
 }) => {
-  // ✅ Lấy user từ AuthContext thay vì props
+  // ✅ Lấy user từ AuthContext
   const { currentUser } = useAuth();
   const userId = currentUser?.id;
 
@@ -1507,17 +880,20 @@ const DoExamPage = ({
   const [fullscreenReady, setFullscreenReady] = useState(false);
   const [error, setError] = useState(null);
 
-  // Refs
+  // ========================
+  // REFS
+  // ========================
   const fullscreenRef = useRef(null);
   const heartbeatInterval = useRef(null);
   const autoSaveInterval = useRef(null);
+  const handleSubmitRef = useRef(null); // ⭐ REF cho handleSubmit
 
   // ========================
   // CONFIG
   // ========================
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-  const HEARTBEAT_INTERVAL = 15000; // 15 seconds
-  const AUTOSAVE_INTERVAL = 30000; // 30 seconds
+  const HEARTBEAT_INTERVAL = 15000;
+  const AUTOSAVE_INTERVAL = 30000;
   const MAX_FULLSCREEN_RETRY = 3;
 
   // ========================
@@ -1558,7 +934,7 @@ const DoExamPage = ({
   }, []);
 
   // ========================
-  // 💾 AUTO-SAVE ANSWERS TO LOCALSTORAGE
+  // 💾 AUTO-SAVE
   // ========================
   const saveAnswersLocal = useCallback(() => {
     if (!examId || !userId) return;
@@ -1575,7 +951,6 @@ const DoExamPage = ({
     }
   }, [examId, userId, answers, timeLeft]);
 
-  // Load saved answers
   const loadAnswersLocal = useCallback(() => {
     if (!examId || !userId) return null;
     
@@ -1584,7 +959,6 @@ const DoExamPage = ({
       const saved = localStorage.getItem(key);
       if (saved) {
         const data = JSON.parse(saved);
-        // Check if saved within last 2 hours
         if (Date.now() - data.timestamp < 2 * 60 * 60 * 1000) {
           return data;
         }
@@ -1595,7 +969,6 @@ const DoExamPage = ({
     return null;
   }, [examId, userId]);
 
-  // Clear saved answers
   const clearAnswersLocal = useCallback(() => {
     if (!examId || !userId) return;
     
@@ -1618,7 +991,57 @@ const DoExamPage = ({
         clearInterval(autoSaveInterval.current);
       }
     };
-  }, [sessionStarted, submitted, saveAnswersLocal]);
+  }, [sessionStarted, submitted, saveAnswersLocal, AUTOSAVE_INTERVAL]);
+
+  // ========================
+  // 💓 HEARTBEAT (⭐ FIXED)
+  // ========================
+  const startHeartbeat = useCallback((sid) => {
+    if (heartbeatInterval.current) {
+      clearInterval(heartbeatInterval.current);
+    }
+
+    heartbeatInterval.current = setInterval(async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/exam-session/heartbeat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: sid })
+        });
+
+        const data = await response.json();
+
+        if (!data.valid) {
+          console.log("❌ Session invalid:", data);
+          setKicked(true);
+          clearInterval(heartbeatInterval.current);
+          
+          if (data.kicked) {
+            alert("⚠️ Bạn đã đăng nhập từ thiết bị khác! Bài thi sẽ tự động nộp.");
+            
+            // ⭐ DÙNG REF thay vì direct call
+            if (handleSubmitRef.current) {
+              handleSubmitRef.current(true);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("❌ Heartbeat error:", error);
+      }
+    }, HEARTBEAT_INTERVAL);
+  }, [API_URL, HEARTBEAT_INTERVAL]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (heartbeatInterval.current) {
+        clearInterval(heartbeatInterval.current);
+      }
+      if (autoSaveInterval.current) {
+        clearInterval(autoSaveInterval.current);
+      }
+    };
+  }, []);
 
   // ========================
   // 🚀 START SESSION
@@ -1651,18 +1074,15 @@ const DoExamPage = ({
         console.log("✅ Session started:", data.sessionId);
 
         if (data.kicked) {
-          showNotification("⚠️ Phiên thi cũ của bạn đã bị đóng!", "warning");
+          console.log("⚠️ Phiên thi cũ đã bị đóng!");
         }
 
-        // Start heartbeat
         startHeartbeat(data.sessionId);
 
-        // Prompt for fullscreen
         if (settings.requireFullscreen) {
           setFullscreenReady(true);
         }
 
-        // Load saved answers if any
         const saved = loadAnswersLocal();
         if (saved && saved.answers) {
           const shouldRestore = window.confirm(
@@ -1670,7 +1090,6 @@ const DoExamPage = ({
           );
           if (shouldRestore) {
             setAnswers(saved.answers);
-            showNotification("✅ Đã khôi phục bài làm trước đó", "success");
           }
         }
       } else {
@@ -1680,56 +1099,7 @@ const DoExamPage = ({
       console.error("❌ Start session error:", error);
       setError("Lỗi kết nối server: " + error.message);
     }
-  }, [userId, examId, sessionStarted, settings, getDeviceInfo, loadAnswersLocal]);
-
-  // ========================
-  // 💓 HEARTBEAT
-  // ========================
-  const startHeartbeat = useCallback((sid) => {
-    if (heartbeatInterval.current) {
-      clearInterval(heartbeatInterval.current);
-    }
-
-    heartbeatInterval.current = setInterval(async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/exam-session/heartbeat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId: sid })
-        });
-
-        const data = await response.json();
-
-        if (!data.valid) {
-          console.log("❌ Session invalid:", data);
-          setKicked(true);
-          clearInterval(heartbeatInterval.current);
-          
-          if (data.kicked) {
-            showNotification(
-              "⚠️ Bạn đã đăng nhập từ thiết bị khác! Bài thi sẽ tự động nộp.",
-              "error"
-            );
-            handleSubmit(true);
-          }
-        }
-      } catch (error) {
-        console.error("❌ Heartbeat error:", error);
-      }
-    }, HEARTBEAT_INTERVAL);
-  }, []);
-
-  // Cleanup heartbeat on unmount
-  useEffect(() => {
-    return () => {
-      if (heartbeatInterval.current) {
-        clearInterval(heartbeatInterval.current);
-      }
-      if (autoSaveInterval.current) {
-        clearInterval(autoSaveInterval.current);
-      }
-    };
-  }, []);
+  }, [userId, examId, sessionStarted, settings, getDeviceInfo, loadAnswersLocal, startHeartbeat, API_URL]);
 
   // ========================
   // 🚨 LOG VIOLATION
@@ -1759,19 +1129,16 @@ const DoExamPage = ({
         });
 
         if (data.forceEnd) {
-          showNotification("🚫 Bạn đã vi phạm quá nhiều! Bài thi tự động nộp.", "error");
-          handleSubmit(true);
-        } else {
-          showNotification(
-            `⚠️ Vi phạm: ${type}. Còn ${data.maxViolations - data.violationCount} lần.`,
-            "warning"
-          );
+          alert("🚫 Bạn đã vi phạm quá nhiều! Bài thi tự động nộp.");
+          if (handleSubmitRef.current) {
+            handleSubmitRef.current(true);
+          }
         }
       }
     } catch (error) {
       console.error("❌ Log violation error:", error);
     }
-  }, [sessionId, userId, examId, submitted, settings.maxViolations]);
+  }, [sessionId, userId, examId, submitted, settings.maxViolations, API_URL]);
 
   // ========================
   // 📋 FETCH EXAM
@@ -1829,7 +1196,6 @@ const DoExamPage = ({
         setQuestions(qWithAns);
         setTimeLeft((data.exam.duration || 0) * 60);
 
-        // Start session after exam loaded
         await startSession();
       } catch (err) {
         console.error("❌ Fetch exam error:", err);
@@ -1842,7 +1208,7 @@ const DoExamPage = ({
     if (examId && userId) {
       fetchExam();
     }
-  }, [examId, userId, onLogout, startSession]);
+  }, [examId, userId, onLogout, startSession, API_URL]);
 
   // ========================
   // ⏱️ COUNTDOWN TIMER
@@ -1854,8 +1220,10 @@ const DoExamPage = ({
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          showNotification("⏰ Hết giờ! Tự động nộp bài.", "warning");
-          handleSubmit(true);
+          alert("⏰ Hết giờ! Tự động nộp bài.");
+          if (handleSubmitRef.current) {
+            handleSubmitRef.current(true);
+          }
           return 0;
         }
         return prev - 1;
@@ -1906,12 +1274,9 @@ const DoExamPage = ({
 
         if (retryCount < MAX_FULLSCREEN_RETRY) {
           setTimeout(() => {
-            showNotification("⚠️ Vui lòng quay lại chế độ toàn màn hình!", "warning");
             setFullscreenReady(true);
             retryCount++;
           }, 1000);
-        } else {
-          showNotification("🚫 Thoát fullscreen quá nhiều lần!", "error");
         }
       }
     };
@@ -1921,10 +1286,10 @@ const DoExamPage = ({
     return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
-  }, [sessionId, submitted, settings.requireFullscreen, logViolation]);
+  }, [sessionId, submitted, settings.requireFullscreen, logViolation, MAX_FULLSCREEN_RETRY]);
 
   // ========================
-  // 🚫 BLOCK COPY/PASTE/RIGHT-CLICK
+  // 🚫 BLOCK COPY/PASTE
   // ========================
   useEffect(() => {
     if (!sessionId || submitted) return;
@@ -1979,18 +1344,16 @@ const DoExamPage = ({
   }, [sessionId, submitted, settings, logViolation]);
 
   // ========================
-  // 🖼️ FULLSCREEN CONTROL
+  // 🖼️ FULLSCREEN
   // ========================
   const enterFullscreen = () => {
     if (fullscreenRef.current && fullscreenRef.current.requestFullscreen) {
       fullscreenRef.current.requestFullscreen()
         .then(() => {
           setFullscreenReady(false);
-          showNotification("✅ Đã vào chế độ toàn màn hình", "success");
         })
         .catch(err => {
           console.error("❌ Fullscreen error:", err);
-          showNotification("❌ Không thể vào fullscreen. Trình duyệt không hỗ trợ.", "error");
           setFullscreenReady(false);
         });
     }
@@ -2001,10 +1364,7 @@ const DoExamPage = ({
   // ========================
   const handleSelect = useCallback((qid, value) => {
     if (submitted) return;
-    setAnswers((prev) => {
-      const newAnswers = { ...prev, [qid]: value };
-      return newAnswers;
-    });
+    setAnswers((prev) => ({ ...prev, [qid]: value }));
   }, [submitted]);
 
   // ========================
@@ -2056,10 +1416,7 @@ const DoExamPage = ({
       if (data.success) {
         setResult(data.result);
         console.log("✅ Submitted successfully:", data.result);
-        
         clearAnswersLocal();
-        
-        showNotification("✅ Nộp bài thành công!", "success");
       } else {
         throw new Error(data.message || "Lỗi nộp bài");
       }
@@ -2068,7 +1425,12 @@ const DoExamPage = ({
       setError("Lỗi kết nối khi nộp bài: " + error.message);
       setSubmitted(false);
     }
-  }, [submitted, answers, questions.length, timeLeft, sessionId, userId, examId, clearAnswersLocal]);
+  }, [submitted, answers, questions.length, timeLeft, sessionId, userId, examId, clearAnswersLocal, API_URL]);
+
+  // ⭐ UPDATE REF khi handleSubmit thay đổi
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
 
   // ========================
   // 🎨 HELPERS
@@ -2084,16 +1446,8 @@ const DoExamPage = ({
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  const showNotification = (message, type = "info") => {
-    console.log(`[${type.toUpperCase()}] ${message}`);
-    
-    if (type === "error") {
-      alert(message);
-    }
-  };
-
   // ========================
-  // 🔄 LOADING STATE
+  // 🔄 LOADING
   // ========================
   if (loading) {
     return (
@@ -2107,7 +1461,7 @@ const DoExamPage = ({
   }
 
   // ========================
-  // ❌ ERROR STATE
+  // ❌ ERROR
   // ========================
   if (error) {
     return (
@@ -2121,9 +1475,6 @@ const DoExamPage = ({
     );
   }
 
-  // ========================
-  // 📋 NO EXAM FOUND
-  // ========================
   if (!examInfo) {
     return (
       <div className="do-exam-page">
@@ -2300,3 +1651,4 @@ const DoExamPage = ({
 };
 
 export default DoExamPage;
+
