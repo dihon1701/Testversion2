@@ -881,7 +881,7 @@ const limiter = rateLimit({
 // Rate limit nghiêm ngặt hơn cho auth endpoints
 const authLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 10000, // Chỉ 20 requests/15 phút
+    max: 9000000, // Chỉ 20 requests/15 phút
     message: { 
         success: false,
         message: "Quá nhiều lần đăng nhập/đăng ký, vui lòng thử lại sau" 
